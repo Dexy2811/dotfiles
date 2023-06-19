@@ -21,3 +21,4 @@ obs-studio
 sddm-git
 wlogout 
 xdg-desktop-portal-hyprland
+tldr
