@@ -20,7 +20,7 @@ output \* bg @datadir@/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
 
 # Kill focused window
 
-    bindsym $mod+q kill
+    bindsym $mod+q kill, exec startx
 
 # Start your launcher
 
