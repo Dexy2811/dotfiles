@@ -1,5 +1,8 @@
 # Startup directory
 #
+# link to repo used:
+# https://gitlab.com/dwt1/dotfiles/-/tree/master/.config/alacritty
+#
 # Directory the shell is started in. If this is unset, or `None`, the working
 # directory of the parent process will be used.
 working_directory: "~"
