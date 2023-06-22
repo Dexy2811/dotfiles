@@ -36,23 +36,23 @@ output \* bg @datadir@/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
 
 # mouse button for dragging.
 
-    floating_modifier $mod normal
+floating_modifier $mod normal
 
 # Reload the configuration file
 
-    bindsym $mod+Shift+r reload
+bindsym $mod+Shift+r reload
 
 # Exit sway (logs you out of your Wayland session)
 
-    bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
+bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
 
 # Make the current focus fullscreen
 
-    bindsym $mod+f fullscreen
+bindsym $mod+f fullscreen
 
 # Open file explorer
 
-    bindsym $mod+e
+bindsym $mod+e
 
 #
 
@@ -77,4 +77,4 @@ position top
 
 }
 
-include @sysconfdir@/sway/config.d/\*
+#include @sysconfdir@/sway/config.d/\*
