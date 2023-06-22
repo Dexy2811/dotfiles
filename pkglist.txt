@@ -1,5 +1,6 @@
 Hyprland
 waybar
+swaynag
 Wofi
 swaync
 swaylock
