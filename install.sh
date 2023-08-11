@@ -13,6 +13,10 @@ timedatectl --no-ask-password set-timezone Europe/Oslo
 # Enables Login display manager
 sudo systemctl enable --now sddm.service
 
+export $(XDG_SESSION_TYPE=wayland < .env)
+export $(XDG_SESSION_DESKTOP=Hyprland < .env)
+export $(XDG_CURRENT_DESKTOP=Hyprland < .env)
+
 mkdir -p ~/Pictures/Screenshots
 cp -r .config $home/
 
