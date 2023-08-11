@@ -1,5 +1,0 @@
-[Desktop Entry]
-Name=Hypr
-Comment=An intelligent dynamic tiling Wayland compositor
-Exec=env WLR_NO_HARDWARE_CURSORS=1 Hyprland
-Type=Application

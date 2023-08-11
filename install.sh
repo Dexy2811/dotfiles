@@ -19,10 +19,4 @@ mkdir -p ../pictures/Screenshots/
 mv .config ../
 echo "Configs Moved"
 
-mv hypr.desktop /usr/share/wayland-sessions/hypr.desktop
-echo ".desktop file moved"
-
-mv Hypr.sh > /usr/local/bin/
-echo "Hpyr config moved"
-
 echo "configuration done please reboot and login"
