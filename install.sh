@@ -18,7 +18,7 @@ export $(XDG_SESSION_DESKTOP=Hyprland < .env)
 export $(XDG_CURRENT_DESKTOP=Hyprland < .env)
 
 mkdir -p ~/Pictures/Screenshots
-mv .config $home/
+mv .config ../
 
 su dexy
 Hyprland
