@@ -1,5 +1,4 @@
 ### Variables
-export WLR_NO_HARDWARE_CURSORS=1
 set $mod Mod4
 
 # Autostart
@@ -44,7 +43,7 @@ bindsym $mod+e
 # Status Bar:
 #
 
-Read `man 5 sway-bar` for more information about this section.
+# Read `man 5 sway-bar` for more information about this section.
 bar {
 position top
 
@@ -61,3 +60,16 @@ position top
 }
 
 #include @sysconfdir@/sway/config.d/\*
+
+
+#
+# Input Configuration
+#
+
+
+# or input <identifier>
+input "type:keyboard" {
+    xkb_layout no
+    xkb_variant ,nodeadkeys
+    xkb_options grp:alt_shift_toggle
+}
