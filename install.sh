@@ -14,7 +14,7 @@ timedatectl --no-ask-password set-timezone Europe/Oslo
 
 # Enables Login display manager
 sudo systemctl enable --now sddm.service
-echo export $(run-parts /usr/lib/systemd/user-environment-generators | sed '/:$/d; /^$/d' | xargs) > ../.bash_profile
+echo "export $(run-parts /usr/lib/systemd/user-environment-generators | sed '/:$/d; /^$/d' | xargs)" > ../.bash_profile
 mkdir -p ../pictures/Screenshots/
 mv .config ../
 echo "Configs Moved"
@@ -25,4 +25,4 @@ echo ".desktop file moved"
 mv Hypr.sh > /usr/local/bin/
 echo "Hpyr config moved"
 
-sudo -u dexy -H sh -c "Hyprland"
+echo "configuration done please reboot and login"
