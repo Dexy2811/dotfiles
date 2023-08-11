@@ -14,7 +14,7 @@ timedatectl --no-ask-password set-timezone Europe/Oslo
 sudo systemctl enable --now sddm.service
 
 mkdir -p ~/Pictures/Screenshots
-cp .config $home/
+cp -r .config $home/
 
 Echo "Config copied and services enabled"
 pause 5
