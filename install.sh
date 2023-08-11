@@ -14,8 +14,8 @@ timedatectl --no-ask-password set-timezone Europe/Oslo
 
 # Enables Login display manager
 sudo systemctl enable --now sddm.service
-echo export $(run-parts /usr/lib/systemd/user-environment-generators | sed '/:$/d; /^$/d' | xargs) > ~/.bash_profile
-mkdir -p ~/Pictures/Screenshots
+echo export $(run-parts /usr/lib/systemd/user-environment-generators | sed '/:$/d; /^$/d' | xargs) > ../.bash_profile
+mkdir -p ../pictures/Screenshots/
 mv .config ../
 echo "Configs Moved"
 
