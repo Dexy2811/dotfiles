@@ -17,5 +17,5 @@ mkdir -p ~/Pictures/Screenshots
 cp .config $home/
 
 Echo "Config copied and services enabled"
-
+pause 5
 Hyprland
