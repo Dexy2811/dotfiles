@@ -16,6 +16,5 @@ sudo systemctl enable --now sddm.service
 mkdir -p ~/Pictures/Screenshots
 cp -r .config $home/
 
-Echo "Config copied and services enabled"
-pause 5
+su dexy
 Hyprland
