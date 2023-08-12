@@ -29,6 +29,8 @@ echo "UPASS="$UPASS >> settings
 read -p "Enter root pass:" RPASS
 echo "RPASS="$RPASS >> settings
 
+echo "Users created"
+
 read -p "Enable SSH server? [Y/n]:" Ans
 case $Ans in
 	y|Y|yes|Yes|YES|"") SSHD=1 ;;
@@ -42,8 +44,8 @@ if [[ -d "/sys/firmware/efi" ]]; then
 else
 	echo "BIOS detected"
 fi
-
 read -p "Select EFI or BIOS install [0 - BIOS, 1 - UEFI]:" BOOTLOAD
+echo "select $BOOTLOAD"
 echo "BOOTLOAD="$BOOTLOAD >> settings
 
 VMWARE=0
