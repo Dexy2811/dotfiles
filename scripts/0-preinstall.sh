@@ -29,7 +29,7 @@ else
 fi
 cd /
 
-mkdir -p /mnt
+mkdir /mnt
 
 
 echo -e "\nInstalling prereqs...\n$HR"
