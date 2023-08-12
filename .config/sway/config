@@ -2,11 +2,12 @@
 set $mod Mod4
 
 # Autostart
+exec swaybg
 # Your preferred terminal emulator
 set $term alacritty
 
 # Temp wallpaper
-output \* bg /wallpaper/wp1.jpg 3840x2160 full
+output \* bg /home/dexy/.config/sway/wallpaper/wp1.jpg center
 
 ## Keybinds
 
