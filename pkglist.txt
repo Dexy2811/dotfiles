@@ -1,11 +1,12 @@
-Hyprland
+base
+base-devel
+linux-headers
+dhclient
+ufw
 waybar
-swaynag
-Wofi
-swaync
-swaylock
 code
 alacritty
+thunar
 curl
 git
 mako
