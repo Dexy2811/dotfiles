@@ -3,8 +3,7 @@
 echo "-------------------------------------------------"
 echo "Setting up mirrors for optimal download          "
 echo "-------------------------------------------------"
-mkdir /mnt/root
-mkdir /mnt/root/dexyarch
+
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 source ./settings
 timedatectl set-ntp true
@@ -13,7 +12,7 @@ pacman -S --noconfirm curl rsync grub unzip
 
 cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
 echo -e "-------------------------------------------------------------------------"
-echo -e "-Setting up US & Canada mirrors for faster downloads"
+echo -e "-Setting up Norway mirrors for faster downloads"
 echo -e "-------------------------------------------------------------------------"
 
 #download new mirrorlist and sort by fastest
@@ -30,7 +29,8 @@ fi
 cd /
 
 mkdir /mnt
-
+mkdir /mnt/root
+mkdir /mnt/root/dexyarch
 
 echo -e "\nInstalling prereqs...\n$HR"
 pacman -S --noconfirm gptfdisk
@@ -85,7 +85,7 @@ echo "-- Arch Install on Main Drive       --"
 echo "--------------------------------------"
 pacstrap /mnt base base-devel linux linux-firmware linux-headers git libnewt unzip --noconfirm --needed
 genfstab -U /mnt >> /mnt/etc/fstab
-cp -R ../scripts/ /mnt/root/dexyarch
+cp -R /scripts/ /mnt/root/dexyarch
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 
 echo "--------------------------------------"
