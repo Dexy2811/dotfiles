@@ -5,13 +5,6 @@ cd ~
 mkdir ~/.local
 xdg-user-dirs-update
 
-#Setup gits
-git config --global user.email $GEMAIL
-git config --global user.name $GNAME
-git config --global credential.helper store
-
-echo -e "\nCloning Gits\n"
-# You can solve users running this script as root with this and then doing the same for the next for statement. However I will leave this up to you.
 
 echo "Loading the pacUpdt timer"
 cd ~/build/

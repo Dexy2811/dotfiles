@@ -1,9 +1,5 @@
 #!/bin/bash
 
-mkdir -p ../pictures/Screenshots/
-mv .config ../
-echo "Configs Moved"
-
 bash scripts/00-setupvars.sh
 #read -p "00 Finished. Continue?" con
 bash scripts/0-preinstall.sh
