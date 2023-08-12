@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 cd ~/build/dexyarch
+source ./settings
 source ./Pkgs
 cd ~
 mkdir ~/.local

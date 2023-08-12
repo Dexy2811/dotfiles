@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 echo "-------------------------------------------------"
 echo "Setting up mirrors for optimal download          "
 echo "-------------------------------------------------"
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ./settings
 timedatectl set-ntp true
 sed -i 's/^#Para/Para/' /etc/pacman.conf
 pacman -S --noconfirm curl rsync grub unzip

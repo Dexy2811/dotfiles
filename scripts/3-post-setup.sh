@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 cd /root/dexyarch
-
+source ./settings
 echo -e "\nFINAL SETUP AND CONFIGURATION"
 echo "--------------------------------------"
 echo "-- GRUB EFI Bootloader Install&Check--"

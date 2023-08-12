@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 cd /root/dexyarch
+source ./settings
 source ./Pkgs
 echo "--------------------------------------"
 echo "--          Network Setup           --"
