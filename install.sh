@@ -18,5 +18,6 @@ echo "export $(run-parts /usr/lib/systemd/user-environment-generators | sed '/:$
 mkdir -p ../pictures/Screenshots/
 mv .config ../
 echo "Configs Moved"
-
+export WLR_NO_HARDWARE_CURSORS=1
+echo "enabled cursors"
 echo "configuration done please reboot and login"

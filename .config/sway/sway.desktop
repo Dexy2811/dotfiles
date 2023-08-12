@@ -1,5 +1,5 @@
 [Desktop Entry]
 Name=DexSway
 Comment=An intelligent dynamic tiling Wayland compositor
-Exec=WLR_NO_HARDWARE_CURSORS=1 sway
+Exec=WLR_NO_HARDWARE_CURSORS=1 sway swaybg
 Type=Application

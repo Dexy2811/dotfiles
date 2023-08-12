@@ -6,7 +6,7 @@ set $mod Mod4
 set $term alacritty
 
 # Temp wallpaper
-output \* bg /usr/dexy/home/.config/wallpaper/wp1.jpg 3840x2160 full
+output \* bg /wallpaper/wp1.jpg 3840x2160 full
 
 ## Keybinds
 
@@ -37,7 +37,7 @@ bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. 
 bindsym $mod+f fullscreen
 
 # Open file explorer
-bindsym $mod+e
+bindsym $mod+e thunar
 
 #
 # Status Bar:
