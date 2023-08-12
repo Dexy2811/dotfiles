@@ -46,7 +46,7 @@ sgdisk -a 2048 -o ${DISK} # new gpt disk 2048 alignment
 # create partitions
 sgdisk -n 1::+1M --typecode=1:ef02 --change-name=1:'BIOSBOOT' ${DISK} # partition 1 (BIOS Boot Partition)
 sgdisk -n 2::+500M --typecode=2:ef00 --change-name=2:'EFIBOOT' ${DISK} # partition 2 (UEFI Boot Partition)
-sgdisk -n 3::+10G --typecode=3:8300 --change-name=3:'ROOT' ${DISK} # partition 3 (Root), default start, minus 10G for swap
+sgdisk -n 3::+5G --typecode=3:8300 --change-name=3:'ROOT' ${DISK} # partition 3 (Root), default start, minus 10G for swap
 if [[ ! -d "/sys/firmware/efi" ]]; then
     sgdisk -A 1:set:2 ${DISK}
 fi
@@ -57,13 +57,13 @@ fi
 echo -e "\nCreating Filesystems...\n$HR"
 if [[ ${DISK} =~ "nvme" ]]; then
 mkfs.vfat -F32 -n "EFIBOOT" "${DISK}p2"
-mkfs.btrfs -L "ROOT" "${DISK}p3" -F
-mount "${DISK}p3" /mnt
+mkfs.btrfs -L "ROOT" "/dev/sda3" -F
+mount "/dev/sda3" /mnt
 
 else
 mkfs.vfat -F32 -n "EFIBOOT" "${DISK}2"
-mkfs.btrfs -L "ROOT" "${DISK}3" -F
-mount "${DISK}3" /mnt
+mkfs.btrfs -L "ROOT" "/dev/sda3" -F
+mount "/dev/sda3" /mnt
 fi
 
 mkdir /mnt/boot
