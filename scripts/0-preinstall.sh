@@ -78,7 +78,7 @@ if ! grep -qs '/mnt' /proc/mounts; then
     reboot now
 fi
 
-#read -p "ready to install. continue?" con
+read -p "ready to install. continue?" con
 
 echo "--------------------------------------"
 echo "-- Arch Install on Main Drive       --"
