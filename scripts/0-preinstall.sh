@@ -3,6 +3,8 @@
 echo "-------------------------------------------------"
 echo "Setting up mirrors for optimal download          "
 echo "-------------------------------------------------"
+mkdir /mnt/root
+mkdir /mnt/root/dexyarch
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 source ./settings
 timedatectl set-ntp true
@@ -57,8 +59,7 @@ if [[ ${DISK} =~ "nvme" ]]; then
 mkfs.vfat -F32 -n "EFIBOOT" "${DISK}p2"
 mkfs.btrfs -L "ROOT" "${DISK}p3" -F
 mount "${DISK}p3" /mnt
-mkswap "${DISK}p4"
-swapon "${DISK}p4"
+
 else
 mkfs.vfat -F32 -n "EFIBOOT" "${DISK}2"
 mkfs.btrfs -L "ROOT" "${DISK}3" -F
@@ -84,7 +85,7 @@ echo "-- Arch Install on Main Drive       --"
 echo "--------------------------------------"
 pacstrap /mnt base base-devel linux linux-firmware linux-headers git libnewt unzip --noconfirm --needed
 genfstab -U /mnt >> /mnt/etc/fstab
-cp -R ${SCRIPT_DIR} /mnt/root/dexyarch
+cp -R ../scripts/ /mnt/root/dexyarch
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 
 echo "--------------------------------------"
