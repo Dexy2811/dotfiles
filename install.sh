@@ -1,5 +1,5 @@
 
-source settings
+source ./settings
 pacman -S --noconfirm archlinux-keyring 
 pacman -S --noconfirm --needed networkmanager dhclient
 systemctl enable --now NetworkManager
