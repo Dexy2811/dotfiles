@@ -8,7 +8,7 @@ SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source ./settings
 timedatectl set-ntp true
 sed -i 's/^#Para/Para/' /etc/pacman.conf
-pacman -S --noconfirm curl rsync grub unzip parted
+pacman -S --noconfirm curl rsync grub unzip
 
 cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
 echo -e "-------------------------------------------------------------------------"
@@ -27,6 +27,7 @@ else
 	echo "Mirrors already ranked"
 fi
 cd /
+
 
 mkdir /mnt/root
 mkdir /mnt/root/dexyarch
@@ -49,27 +50,25 @@ sgdisk -n 3::-0 --typecode=3:8300 --change-name=3:'ROOT' ${DISK} # partition 3 (
 if [[ ! -d "/sys/firmware/efi" ]]; then # Checking for bios system
     sgdisk -A 1:set:2 ${DISK}
 fi
-partprobe ${DISK} # reread partition table to ensure it is correct
 
-
-read -p "continue?" con
+#read -p "continue?" con
 
 # make filesystems
 echo -e "\nCreating Filesystems...\n$HR"
-if [[ "${FS}" == "btrfs" ]]; then
-    mkfs.vfat -F32 -n "EFIBOOT" ${partition2}
-    mkfs.btrfs -L ROOT ${partition3} -f
-    mount -t btrfs ${partition3} /mnt
-elif [[ "${FS}" == "ext4" ]]; then
-    mkfs.vfat -F32 -n "EFIBOOT" ${partition2}
-    mkfs.ext4 -L ROOT ${partition3}
-    mount -t ext4 ${partition3} /mnt
-mkfs.btrfs -L ROOT ${partition3}
+if [[ ${DISK} =~ "nvme" ]]; then
+mkfs.vfat -F32 -n "EFIBOOT" "${DISK}p2"
+mkfs.btrfs -L "ROOT" "/dev/sda3" -F
+mount "/dev/sda3" /mnt
+
+else
+mkfs.vfat -F32 -n "EFIBOOT" "${DISK}2"
+mkfs.btrfs -L "ROOT" "/dev/sda3" -F
+mount "/dev/sda3" /mnt
 fi
 
 mkdir /mnt/boot
-mkdir -p /mnt/boot/efi
 mount -t vfat -L EFIBOOT /mnt/boot/
+mkdir /mnt/boot/efi
 
 if ! grep -qs '/mnt' /proc/mounts; then
     echo "Drive is not mounted can not continue"
@@ -84,12 +83,8 @@ read -p "ready to install. continue?" con
 echo "--------------------------------------"
 echo "-- Arch Install on Main Drive       --"
 echo "--------------------------------------"
-pacstrap /mnt base base-devel linux linux-firmware linux-headers sudo git libnewt unzip --noconfirm --needed
-genfstab -L /mnt >> /mnt/etc/fstab
-echo " 
-  Generated /etc/fstab:
-"
-cat /mnt/etc/fstab
+pacstrap /mnt base base-devel linux linux-firmware linux-headers git libnewt unzip --noconfirm --needed
+genfstab -U /mnt >> /mnt/etc/fstab
 cp -R /scripts/ /mnt/root/dexyarch
 cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 
