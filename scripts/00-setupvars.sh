@@ -44,7 +44,6 @@ if [[ -d "/sys/firmware/efi" ]]; then
 else
 	echo "BIOS detected"
 fi
-echo "select $BOOTLOAD"
 read -p "Select EFI or BIOS install [0 - BIOS, 1 - UEFI]:" BOOTLOAD
 echo "BOOTLOAD="$BOOTLOAD >> settings
 
