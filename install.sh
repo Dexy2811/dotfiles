@@ -1,15 +1,324 @@
 #!/bin/bash
+#!/bin/bash
+echo "#!/bin/bash" > settings
+pacman -Sy
+pacman -S --noconfirm pacman-contrib terminus-font archlinux-keyring
+setfont ter-v22b
 
-bash scripts/00-setupvars.sh
-read -p "00 Finished. Continue?" con
-bash scripts/0-preinstall.sh
-read -p "0 Finished. Continue?" con
-arch-chroot /mnt /root/dexyarch/1-setup.sh
-read -p "1 Finished. Continue?" con
-arch-chroot /mnt /usr/bin/runuser -u $USER -- /home/$USER/build/dexyarch/2-user.sh
-read -p "2 Finished. Continue?" con
-arch-chroot /mnt /root/dexyarch/3-post-setup.sh
-rm -r /mnt/root/dexyarch/
+
+echo "-------------------------------------------------"
+echo "-------select the install disk-------------------"
+echo "-------------------------------------------------"
+echo "THIS WILL FORMAT AND DELETE ALL DATA ON THE DISK"
+lsblk
+echo "Please enter disk to work on: (example /dev/sda)"
+read DISK
+echo "DISK="$DISK >> settings
+echo ""
+read -p "Do you want a Graphical Environment [Y/n]:" GraphicAns
+case $GraphicAns in
+	y|Y|yes|Yes|YES|"") GUI=1 ;;
+	*) GUI=0 ;;
+esac
+echo "GUI="$GUI >> settings
+read -p "Enter hostname:" HNAME
+echo "HNAME="$HNAME >> settings
+read -p "Enter username:" USER
+echo "USER="$USER >> settings
+read -p "Enter userpass:" UPASS
+echo "UPASS="$UPASS >> settings
+read -p "Enter root pass:" RPASS
+echo "RPASS="$RPASS >> settings
+
+echo "Users created"
+
+read -p "Enable SSH server? [Y/n]:" Ans
+case $Ans in
+	y|Y|yes|Yes|YES|"") SSHD=1 ;;
+	*) SSHD=0 ;;
+esac
+echo "SSHD="$SSHD >> settings
+
+echo "Detecting UEFI/BIOS"
+if [[ -d "/sys/firmware/efi" ]]; then
+	echo "EFI detected"
+else
+	echo "BIOS detected"
+fi
+read -p "Select EFI or BIOS install [0 - BIOS, 1 - UEFI]:" BOOTLOAD
+echo "BOOTLOAD="$BOOTLOAD >> settings
+
+VMWARE=0
+if [[ $(lspci | grep -c VMware) ]]; then
+	read -p "VMware detected, would you like to install VMware-tools? [Y/n]:" Ans
+	case $Ans in
+		y|Y|yes|Yes|YES|"") VMWARE=1 ;;
+		*) VMWARE=0 ;;
+	esac
+fi
+echo "VMWARE="$VMWARE >> settings
+
+echo "-------------------------------------------------"
+echo "Setting up mirrors for optimal download          "
+echo "-------------------------------------------------"
+
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source ./settings
+timedatectl set-ntp true
+sed -i 's/^#Para/Para/' /etc/pacman.conf
+pacman -S --noconfirm curl rsync grub unzip
+
+cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+echo -e "-------------------------------------------------------------------------"
+echo -e "-Setting up Norway mirrors for faster downloads"
+echo -e "-------------------------------------------------------------------------"
+
+#download new mirrorlist and sort by fastest
+if [[ ! -f /etc/pacman.d/mirrorlist.new ]]; then #ranking takes a second, will only already exist if we are running multiple times (during debugging)
+	cd /etc/pacman.d/
+	curl "https://archlinux.org/mirrorlist/?country=CA&country=US&protocol=http&protocol=https&ip_version=4&use_mirror_status=on" -o "mirrorlist.new"
+	sed -i 's/^#Server/Server/' 'mirrorlist.new'
+	echo "Ranking Mirrors"
+	rankmirrors -n 10 mirrorlist.new > mirrorlist
+	echo "Mirrors Ranked"
+else
+	echo "Mirrors already ranked"
+fi
+cd /
+
+
+mkdir /mnt/root
+mkdir /mnt/root/dexyarch
+
+echo -e "\nInstalling prereqs...\n$HR"
+pacman -S --noconfirm gptfdisk
+
+echo "--------------------------------------"
+echo -e "\nFormatting disk...\n$HR"
+echo "--------------------------------------"
+#read -p "continue?" con
+# disk prep
+sgdisk -Z ${DISK} # zap all on disk
+sgdisk -a 2048 -o ${DISK} # new gpt disk 2048 alignment
+
+# create partitions
+sgdisk -n 1::+1M --typecode=1:ef02 --change-name=1:'BIOSBOOT' ${DISK} # partition 1 (BIOS Boot Partition)
+sgdisk -n 2::+300M --typecode=2:ef00 --change-name=2:'EFIBOOT' ${DISK} # partition 2 (UEFI Boot Partition)
+sgdisk -n 3::-0 --typecode=3:8300 --change-name=3:'ROOT' ${DISK} # partition 3 (Root), default start, remaining
+if [[ ! -d "/sys/firmware/efi" ]]; then # Checking for bios system
+    sgdisk -A 1:set:2 ${DISK}
+fi
+
+#read -p "continue?" con
+
+# make filesystems
+echo -e "\nCreating Filesystems...\n$HR"
+if [[ ${DISK} =~ "nvme" ]]; then
+mkfs.vfat -F32 -n "EFIBOOT" "${DISK}p2"
+mkfs.btrfs -L "ROOT" "/dev/sda3" -F
+mount "/dev/sda3" /mnt
+
+else
+mkfs.vfat -F32 -n "EFIBOOT" "${DISK}2"
+mkfs.btrfs -L "ROOT" "/dev/sda3" -F
+mount "/dev/sda3" /mnt
+fi
+
+mkdir /mnt/boot
+mount -t vfat -L EFIBOOT /mnt/boot/
+mkdir /mnt/boot/efi
+
+if ! grep -qs '/mnt' /proc/mounts; then
+    echo "Drive is not mounted can not continue"
+    echo "Rebooting in 3 Seconds ..." && sleep 1
+    echo "Rebooting in 2 Seconds ..." && sleep 1
+    echo "Rebooting in 1 Second ..." && sleep 1
+    reboot now
+fi
+
+read -p "ready to install. continue?" con
+
+echo "--------------------------------------"
+echo "-- Arch Install on Main Drive       --"
+echo "--------------------------------------"
+pacstrap /mnt base base-devel linux linux-firmware linux-headers git libnewt unzip --noconfirm --needed
+genfstab -U /mnt >> /mnt/etc/fstab
+cp install.sh /mnt/root/dexyarch
+cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
+
+echo "--------------------------------------"
+echo "--GRUB BIOS Bootloader Install&Check--"
+echo "--------------------------------------"
+if [[ ! -d "/sys/firmware/efi" ]]; then
+    grub-install --boot-directory=/mnt/boot ${DISK}
+fi
+echo "--------------------------------------"
+echo "--   SYSTEM READY FOR 1-setup       --"
+echo "--------------------------------------"
+#read -p "continue?" con
+
+
+cd /root/dexyarch
+source ./settings
+source ./Pkgs
+echo "--------------------------------------"
+echo "--          Network Setup           --"
+echo "--------------------------------------"
+pacman -S networkmanager dhclient --noconfirm --needed
+systemctl enable --now NetworkManager
+echo "-------------------------------------------------"
+echo "Setting up mirrors for optimal download          "
+echo "-------------------------------------------------"
+pacman -S --noconfirm pacman-contrib curl
+cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+
+nc=$(grep -c ^processor /proc/cpuinfo)
+echo "You have " $nc" cores."
+echo "-------------------------------------------------"
+echo "Changing the makeflags for "$nc" cores."
+TOTALMEM=$(cat /proc/meminfo | grep -i 'memtotal' | grep -o '[[:digit:]]*')
+if [[  $TOTALMEM -gt 8000000 ]]; then
+sed -i "s/#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j$nc\"/g" /etc/makepkg.conf
+echo "Changing the compression settings for "$nc" cores."
+sed -i "s/COMPRESSXZ=(xz -c -z -)/COMPRESSXZ=(xz -c -T $nc -z -)/g" /etc/makepkg.conf
+fi
+echo "-------------------------------------------------"
+echo "       Setup Language to NO and set locale       "
+echo "-------------------------------------------------"
+ln -sf /usr/share/zoneinfo/Europe/Oslo /etc/localtime
+loadkeys no-latin1
+hwclock --systohc
+cp -r /dots/etc/* /etc/
+locale-gen
+
+pacman -Syu --noconfirm
+
+echo -e "\nInstalling Base System\n"
+
+sudo pacman -S ${BASEPKGS[@]} --noconfirm --needed
+
+if (( $GUI )); then
+	echo "INSTALLING GRAPHICAL ENVIRONMENT"
+	sudo pacman -S ${GUIPKGS[@]} --noconfirm --needed
+
+	# Graphics Drivers find and install
+	if lspci | grep -E "NVIDIA|GeForce"; then
+	    pacman -S nvidia --noconfirm --needed
+	elif lspci | grep -E "Radeon"; then
+	    pacman -S xf86-video-amdgpu --noconfirm --needed
+	elif lspci | grep -E "Integrated Graphics Controller"; then
+	    pacman -S libva-intel-driver libvdpau-va-gl lib32-vulkan-intel vulkan-intel libva-intel-driver libva-utils --needed --noconfirm
+	fi
+fi
+
+#
+# determine processor type and install microcode
+#
+proc_type=$(lscpu | awk '/Vendor ID:/ {print $3}')
+case "$proc_type" in
+	GenuineIntel)
+		print "Installing Intel microcode"
+		pacman -S --noconfirm intel-ucode
+		proc_ucode=intel-ucode.img
+		;;
+	AuthenticAMD)
+		print "Installing AMD microcode"
+		pacman -S --noconfirm amd-ucode
+		proc_ucode=amd-ucode.img
+		;;
+esac
+
+#add the user
+useradd -m -G wheel,adm,rfkill,uucp -s /bin/bash $USER
+echo -e $UPASS"\n"$UPASS | passwd $USER
+echo -e $RPASS"\n"$RPASS | passwd
+mkdir -p /home/$USER/build/
+cp -R /root/dexyarch /home/$USER/build/
+chown -R $USER: /home/$USER/build
+echo $HNAME > /etc/hostname
+echo "127.0.0.1 "$HNAME >> /etc/hosts
+
+if (( $SSHD )); then
+	systemctl enable sshd
+fi
+
+
+cd ~/build/dexyarch
+source ./settings
+source ./Pkgs
+cd ~
+mkdir ~/.local
+xdg-user-dirs-update
+
+
+echo "Loading the pacUpdt timer"
+cd ~/build/
+git clone https://github.com/Michae11s/pacUpdt.git
+cd pacUpdt/
+makepkg -si --noconfirm
+sudo systemctl enable pacUpdt.timer
+
+if (( $GUI )); then
+	echo "Import spotify gpg key"
+	curl -sS https://download.spotify.com/debian/pubkey_0D811D58.gpg | gpg --import -
+	for PKG in "${AURPKGS[@]}"; do
+		cd ~/build
+		echo "****************************************************"
+		echo "*** Installing: "$PKG" ***"
+		echo "****************************************************"
+		auracle clone $PKG
+		cd $PKG
+		makepkg -si --noconfirm
+	done
+
+	#run inital flavours commands
+	flavours update all
+fi
+
+if (( $VMWARE )); then
+	sudo pacman -S --noconfirm open-vm-tools gtkmm gtk2
+	sudo systemctl enable vmtoolsd
+fi
+
+echo -e "\nDone 2-user\n"
+
+cd /root/dexyarch
+source ./settings
+echo -e "\nFINAL SETUP AND CONFIGURATION"
+echo "--------------------------------------"
+echo "-- GRUB EFI Bootloader Install&Check--"
+echo "--------------------------------------"
+if (( $BOOTLOAD )); then
+	grub-install --target x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+else
+	grub-install --target=i386-pc $DISK
+fi
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# ------------------------------------------------------------------------
+
+if (( $GUI )); then
+	echo -e "\nEnabling Login Display Manager"
+	systemctl enable sddm.service
+	echo -e "\nSetup SDDM Theme"
+	#cat <<EOF > /etc/sddm.conf
+	#[Theme]
+	#Current=Nordic
+	#EOF
+fi
+# ------------------------------------------------------------------------
+
+echo -e "\nEnabling essential services"
+
+systemctl enable cups.service
+systemctl enable NetworkManager.service
+systemctl enable bluetooth
+echo "
+###############################################################################
+# Cleaning
+###############################################################################
+"
+
 read -p "Install finished. Reboot? [Y/n]:" Ans
 case $Ans in
    y|Y|yes|Yes|YES|"") reboot ;;
