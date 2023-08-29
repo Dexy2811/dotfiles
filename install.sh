@@ -1,14 +1,9 @@
 
 source ./settings
-pacman -S --noconfirm archlinux-keyring 
-pacman -S --noconfirm --needed networkmanager dhclient
 systemctl enable --now NetworkManager
-pacman -S - < Pkgs
 # Enables Login display manager
 sudo systemctl enable --now sddm.service
-# sets dhcp and enables it:
-# set keyboard layout:
-loadkeys no-latin1
+
 # sets ntp:
 timedatectl set-ntp true
 # Sets timezone

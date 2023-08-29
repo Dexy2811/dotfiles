@@ -13,7 +13,7 @@ live_config_reload: true
 # Allow terminal applications to change Alacritty's window title.
 dynamic_title: true
 
-#cursor:
+cursor:
   # Cursor style
   #
   # Values for `style`:
@@ -62,8 +62,8 @@ tab_width = 4
 
 key_bindings:
     # (Windows, Linux, and BSD only)
-  - { key: V,         mods: Control|Shift, action: Paste                       }
-  - { key: C,         mods: Control|Shift, action: Copy                        }
+  - { key: V,         mods: Control,       action: Paste                       }
+  - { key: C,         mods: Control,       action: Copy                        }
   - { key: Insert,    mods: Shift,         action: PasteSelection              }
   - { key: Key0,      mods: Control,       action: ResetFontSize               }
   - { key: Equals,    mods: Control,       action: IncreaseFontSize            }
