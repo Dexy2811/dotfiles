@@ -1,0 +1,17 @@
+discord-canary
+hyprshot
+lug-helper
+minecraft-launcher
+minecraft-launcher-debug
+nomacs
+nomacs-debug
+prismlauncher-git
+prismlauncher-git-debug
+spotify
+ttf-all-the-icons
+ttf-ms-fonts
+visual-studio-code-bin
+visual-studio-code-bin-debug
+yay
+yay-debug
+youtube-music-bin
